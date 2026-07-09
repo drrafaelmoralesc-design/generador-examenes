@@ -1,143 +1,106 @@
-import streamlit as st
-import pandas as pd
+\documentclass[11pt,spanish]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage[letterpaper,margin=1.5cm]{geometry}
+\usepackage{shortlst}
+\usepackage{enumitem}
 
-# Configuración de la página en modo centrado
-st.set_page_config(page_title="Generador de Exámenes - IPN CECyT 7", layout="centered")
+\begin{document}
 
-# Encabezado centrado con HTML
-st.markdown(
-    """
-    <div style="text-align: center;">
-        <h2 style="margin-bottom: 0;">INSTITUTO POLITÉCNICO NACIONAL</h2>
-        <h3 style="margin-top: 0; margin-bottom: 5px;">CENTRO DE ESTUDIOS CIENTÍFICOS Y TECNOLÓGICOS NÚM. 7 "CUAUHTÉMOC"</h3>
-        <p style="font-size: 1.1em; font-weight: bold; margin-top: 0;">SUBDIRECCIÓN ACADÉMICA • DEPARTAMENTO DE UNIDADES DE APRENDIZAJE TRASVERSALES</p>
-    </div>
-    """, 
-    unsafe_allow_html=True
-)
+\begin{center}
+    {\Large \textbf{INSTITUTO POLITÉCNICO NACIONAL}} \\
+    {\large \textbf{CENTRO DE ESTUDIOS CIENTÍFICOS Y TECNOLÓGICOS NÚM. 7 "CUAUHTÉMOC"}} \\
+    \textbf{SUBDIRECCIÓN ACADÉMICA} \\
+    \vspace{0.3cm}
+    \textbf{UNIDAD DE APRENDIZAJE:} Física II \quad \textbf{CICLO:} 2026-2 \\
+    \textbf{Evaluación por ETS (Extraordinario)} \quad \textbf{Tipo A}
+\end{center}
 
-st.markdown("---")
+\vspace{0.2cm}
+\noindent\textbf{Nombre del Alumno:} \hrulefill \, \textbf{Boleta:} \underline{\hspace{2.5cm}} \, \textbf{Grupo:} \underline{\hspace{1.5cm}} \\
+\noindent\textbf{Fecha:} Julio 2026 \quad \textbf{Horario:} 10:00 AM \quad \textbf{Calificación:} \underline{\hspace{1.5cm}}
 
-# Panel de Configuración de Datos del Examen (Barra Lateral Izquierda)
-st.sidebar.header("⚙️ Datos del Encabezado")
-ciclo = st.sidebar.text_input("Ciclo Escolar", value="2026-2")
-evaluacion = st.sidebar.text_input("Evaluación", value="Evaluación por ETS (Extraordinario)")
-academia = st.sidebar.text_input("Academia / Unidad", value="Física II")
-fecha = st.sidebar.text_input("Fecha de Aplicación", value="Julio 2026")
-horario = st.sidebar.text_input("Horario", value="10:00 AM")
-tipo_examen = st.sidebar.selectbox("Tipo de Examen", ["Tipo A", "Tipo B"])
+\vspace{0.5cm}
+\noindent\rule{\linewidth}{0.5mm}
 
-# Mostrar simulación de los campos del alumno construyendo el HTML de forma segura
-html_alumno = (
-    '<div style="border: 1px solid #ccc; padding: 15px; border-radius: 5px; background-color: #f9f9f9; margin-bottom: 25px;">'
-    '<table style="width: 100%; border-collapse: collapse;">'
-    '<tr>'
-    '<td style="width: 50%;"><b>Nombre del Alumno:</b> _____________________________________</td>'
-    '<td style="width: 25%;"><b>Boleta:</b> ______________</td>'
-    '<td style="width: 25%;"><b>Grupo:</b> _________</td>'
-    '</tr>'
-    '<tr>'
-    f'<td><b>Unidad de Aprendizaje:</b> {academia}</td>'
-    f'<td><b>Ciclo Escolar:</b> {ciclo}</td>'
-    '<td><b>Calificación:</b> ______</td>'
-    '</tr>'
-    '<tr>'
-    f'<td colspan="3"><b>Tipo de Evaluación:</b> {evaluacion} &nbsp;&nbsp;&nbsp;&nbsp; <b>Fecha:</b> {fecha} &nbsp;&nbsp;&nbsp;&nbsp; <b>{tipo_examen}</b></td>'
-    '</tr>'
-    '</table>'
-    '</div>'
-)
+\begin{enumerate}[label=\arabic*.-]
 
-st.markdown(html_alumno, unsafe_allow_html=True)
+    \item Cantidad de calor necesaria para elevar la temperatura de un gramo de agua en un grado Celsius, de 14.5 a 15.5°C, a la presión normal:
+    \begin{enumerate}[label=\alph*)] 
+        \item BTU 
+        \item joule 
+        \item caloría 
+        \item watts 
+    \end{enumerate}
+    \item Propiedad de los metales de extenderse hasta formar láminas grandes:
+    \begin{enumerate}[label=\alph*)] 
+        \item capilaridad 
+        \item ductilidad 
+        \item plasticidad 
+        \item maleabilidad 
+    \end{enumerate}
+    \item La razón de la masa de una sustancia entre su volumen define su:
+    \begin{enumerate}[label=\alph*)] 
+        \item presión 
+        \item peso específico 
+        \item flujo 
+        \item densidad 
+    \end{enumerate}
+    \item La resistencia que presenta un líquido a fluir sobre una superficie se llama:
+    \begin{enumerate}[label=\alph*)] 
+        \item cohesión 
+        \item viscosidad 
+        \item capilaridad 
+        \item tensión superficial 
+    \end{enumerate}
+    \item El físico que estableció el equivalente mecánico del calor fue:
+    \begin{enumerate}[label=\alph*)] 
+        \item Joule 
+        \item Kelvin 
+        \item Maxwell 
+        \item Newton 
+    \end{enumerate}
+    \item Cantidad de energía requerida por una sustancia para cambiar de fase, a temperatura constante:
+    \begin{enumerate}[label=\alph*)] 
+        \item calor específico 
+        \item caloría 
+        \item calor de conducción 
+        \item calor latente 
+    \end{enumerate}
+    \item Transferencia de calor de un punto a otro debido al movimiento real de las partículas calentadas de un fluido:
+    \begin{enumerate}[label=\alph*)] 
+        \item convección 
+        \item radiación 
+        \item conducción 
+        \item polarización 
+    \end{enumerate}
+    \item La primera ley de la termodinámica está relacionada con la conservación de:
+    \begin{enumerate}[label=\alph*)] 
+        \item carga 
+        \item energía 
+        \item temperatura 
+        \item entropía 
+    \end{enumerate}
+    \item La magnitud de una fuerza capaz de acelerar una masa de 1 kg a 1 m/s² se llama:
+    \begin{enumerate}[label=\alph*)] 
+        \item dina 
+        \item libra 
+        \item newton 
+        \item kilogramo 
+    \end{enumerate}
+    \item Para incrementar la rapidez de una partícula desde un valor inicial $v_0$ hasta un valor final $v$ se requiere un trabajo mecánico $W_0$. ¿Qué trabajo mecánico se requerirá para aumentar su rapidez desde un valor $V_0$ hasta un nuevo valor $V$?
+    \item Una goma para borrar de forma cilíndrica y masa insignificante se pasa por el papel, desde el lápiz, con una velocidad constante hacia la derecha. El coeficiente de fricción cinética entre la goma y el papel es $\mu_k$. El lápiz se empuja hacia abajo con una fuerza R. La altura de la goma es h y su diámetro es q. Determine el desplazamiento horizontal r de la superficie inferior de la goma respecto a la parte superior, sabiendo que el módulo de corte del material de la goma tiene un valor igual a S.
+    \item El volumen interior de una casa equivale al de un sólido rectangular de 13 m de ancho por 20 m de largo y 2.75 m de alto. La casa se calienta con un calentador de gas de aire forzado. El conducto principal de entrada de aire del calentador tiene un diámetro de 0.3 m. ¿Cuál es la rapidez media del aire en el conducto si este transporta un volumen igual al del interior de la casa cada 15 minutos?
+    \item Un termómetro de mercurio que todavía se utiliza en meteorología tiene un bulbo con un volumen de 0.78 cm³ y un tubo para que el mercurio se expanda en su interior de 0.13 mm de diámetro. Desestimando la dilatación térmica del vidrio y sabiendo que el coeficiente de dilatación térmica volumétrica del mercurio es $180\times10^{-6} \, ^{\circ}\text{C}^{-1}$, ¿cuál es la distancia entre marcas de 1°C?
+    \item Una pieza de plomo de 0.6 kg se calienta a 160°C y luego se coloca en un recipiente de aluminio aislado, cuya masa es de 800 g, que contiene un litro de agua inicialmente a 68°F. ¿Cuál será la temperatura de equilibrio de la mezcla, si los calores específicos del plomo y del aluminio son $130 \, \frac{\text{J}}{\text{kg}^{\circ}\text{C}}$ y $0.22 \, \frac{\text{cal}}{\text{g}^{\circ}\text{C}}$ respectivamente?
+\end{enumerate}
 
-# Sección de Carga de Archivos
-st.header("📊 Carga de Reactivos")
-archivo_cargado = st.file_uploader("Suba el archivo de Excel con el banco de preguntas (.xlsx)", type=["xlsx"])
+\vspace{1.5cm}
+\begin{center}
+\begin{tabular}{cc}
+   \rule{5cm}{0.2mm} & \rule{5cm}{0.2mm} \\
+   Presidente de Academia & Jefa de Departamento \\
+\end{tabular}
+\end{center}
 
-if archivo_cargado is not None:
-    try:
-        df = pd.read_excel(archivo_cargado)
-        st.success("¡Archivo de reactivos cargado exitosamente!")
-        
-        st.subheader("📝 Selección de Reactivos para el Examen")
-        st.write("Seleccione las preguntas que desea incluir en la versión final:")
-        
-        df['Seleccionar'] = False
-        tabla_edicion = st.data_editor(
-            df,
-            column_config={
-                "Seleccionar": st.column_config.CheckboxColumn(
-                    "¿Incluir?",
-                    help="Marque la casilla para agregar esta pregunta",
-                    default=False,
-                )
-            },
-            disabled=["Tema", "Tipo", "Enunciado", "Opción A", "Opción B", "Opción C", "Opción D"],
-            hide_index=True,
-        )
-        
-        if st.button("🚀 Generar Código LaTeX (Formato Oficio Oficial)"):
-            preguntas_seleccionadas = tabla_edicion[tabla_edicion['Seleccionar'] == True]
-            
-            if len(preguntas_seleccionadas) == 0:
-                st.warning("Por favor, seleccione al menos una pregunta de la lista.")
-            else:
-                st.subheader("📄 Código LaTeX Listo para Copiar")
-                
-                # Formato ultra compatible para importación directa en LyX
-                codigo_previa = (
-                    "\\documentclass[11pt,spanish]{article}\n"
-                    "\\usepackage[utf8]{inputenc}\n"
-                    "\\usepackage{babel}\n"
-                    "\\usepackage[letterpaper,margin=1.5cm]{geometry}\n"
-                    "\\usepackage{shortlst}\n"
-                    "\\usepackage{enumitem}\n\n"
-                    "\\begin{document}\n\n"
-                    "\\begin{center}\n"
-                    "    {\\Large \\textbf{INSTITUTO POLITÉCNICO NACIONAL}} \\\\\n"
-                    "    {\\large \\textbf{CENTRO DE ESTUDIOS CIENTÍFICOS Y TECNOLÓGICOS NÚM. 7 \"CUAUHTÉMOC\"}} \\\\\n"
-                    "    \\textbf{SUBDIRECCIÓN ACADÉMICA} \\\\\n"
-                    "    \\vspace{0.3cm}\n"
-                    f"    \\textbf{{UNIDAD DE APRENDIZAJE:}} {academia} \\quad \\textbf{{CICLO:}} {ciclo} \\\\\n"
-                    f"    \\textbf{{{evaluacion}}} \\quad \\textbf{{{tipo_examen}}}\n"
-                    "\\end{center}\n\n"
-                    "\\vspace{0.2cm}\n"
-                    "\\noindent\\textbf{Nombre del Alumno:} \\hrulefill \\, \\textbf{Boleta:} \\underline{\\hspace{2.5cm}} \\, \\textbf{Grupo:} \\underline{\\hspace{1.5cm}} \\\\\n"
-                    f"\\noindent\\textbf{{Fecha:}} {fecha} \\quad \\textbf{{Horario:}} {horario} \\quad \\textbf{{Calificación:}} \\underline{{\\hspace{{1.5cm}}}}\n\n"
-                    "\\vspace{0.5cm}\n"
-                    "\\noindent\\rule{\\linewidth}{0.5mm}\n\n"
-                    "\\begin{enumerate}[label=\\arabic*.-]\n"
-                )
-                
-                for idx, row in preguntas_seleccionadas.iterrows():
-                    codigo_previa += f"\n    \\item {row['Enunciado']}"
-                    if row['Tipo'] == 'opcion_multiple':
-                        # Se cambia piletters por un entorno estándar de letras (a, b, c, d)
-                        codigo_previa += (
-                            f"\n    \\begin{{enumerate}}[label=\\alph*)] \n"
-                            f"        \\item {row['Opción A']} \n"
-                            f"        \\item {row['Opción B']} \n"
-                            f"        \\item {row['Opción C']} \n"
-                            f"        \\item {row['Opción D']} \n"
-                            f"    \\end{{enumerate}}"
-                        )
-                
-                codigo_previa += (
-                    "\n\\end{enumerate}\n\n"
-                    "\\vspace{1.5cm}\n"
-                    "\\begin{center}\n"
-                    "\\begin{tabular}{cc}\n"
-                    "   \\rule{5cm}{0.2mm} & \\rule{5cm}{0.2mm} \\\\\n"
-                    "   Presidente de Academia & Jefa de Departamento \\\\\n"
-                    "\\end{tabular}\n"
-                    "\\end{center}\n\n"
-                    "\\end{document}\n"
-                )
-                
-                st.code(codigo_previa, language="latex")
-                st.success("¡Código LaTeX estructurado con éxito nativo! Listo para importar en LyX.")
-                
-    except Exception as e:
-        st.error(f"Hubo un problema al procesar el archivo de Excel: {e}")
-else:
-    st.info("Esperando el archivo de Excel para desplegar el banco de reactivos.")
+\end{document}
