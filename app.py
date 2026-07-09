@@ -7,23 +7,24 @@ archivo_cargado = st.file_uploader("Suba su archivo Excel", type=["xlsx"])
 if archivo_cargado and st.button("🚀 Generar Código LaTeX"):
     df = pd.read_excel(archivo_cargado)
     
-    # Limpieza nivel experto: borra CUALQUIER cosa que no sea letra, número o puntuación básica
-    def limpieza_extrema(texto):
+    def limpieza_nuclear(texto):
         texto = str(texto)
-        # Reemplazar símbolos matemáticos comunes por texto plano seguro
-        texto = texto.replace("²", " al cuadrado").replace("³", " al cubo").replace("°", " grados")
-        # Eliminar cualquier carácter que no sea ASCII (letras normales, números, puntuación básica)
-        texto = re.sub(r'[^\x00-\x7F]+', '', texto)
+        # Reemplazar símbolos físicos por comandos LaTeX que SÍ funcionan
+        texto = texto.replace("×", "\\times")
+        texto = texto.replace("·", "\\cdot")
+        texto = texto.replace("²", "$^2$")
+        texto = texto.replace("³", "$^3$")
+        texto = texto.replace("µ", "$\\mu$") # Letra mu (micro)
+        # Eliminar caracteres raros pero permitir los comandos LaTeX que acabamos de poner
         return texto
 
-    # Aplicar la limpieza columna por columna
     for col in df.columns:
-        df[col] = df[col].apply(limpieza_extrema)
+        df[col] = df[col].apply(limpieza_nuclear)
     
     teoricas = df[df['Tipo'] == 'opcion_multiple']
     problemas = df[df['Tipo'] != 'opcion_multiple']
     
-    # Generar código sin NINGUN comando especial (solo texto plano)
+    # Generar código
     codigo = "\\noindent \\textbf{INSTITUTO POLITÉCNICO NACIONAL} \\\\\n"
     codigo += "\\noindent \\textbf{CECyT Núm. 7 \"CUAUHTÉMOC\"} \\\\\n"
     codigo += "\\noindent \\textbf{ACADEMIA DE FÍSICA II} \\\\\n\n"
@@ -37,6 +38,7 @@ if archivo_cargado and st.button("🚀 Generar Código LaTeX"):
     
     codigo += "\\newpage\n\\noindent \\textbf{SECCIÓN II: PROBLEMAS}\n\n"
     for _, row in problemas.iterrows():
+        # Aquí permitimos que el código LaTeX (\times) pase directo
         codigo += "\\noindent " + str(row['Enunciado']) + " \\\\\n\\vspace{3cm}\n"
     
     codigo += "\\vspace{\\fill}\n"
