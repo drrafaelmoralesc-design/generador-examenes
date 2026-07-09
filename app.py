@@ -4,7 +4,7 @@ import pandas as pd
 # Configuración de la página en modo centrado
 st.set_page_config(page_title="Generador de Exámenes - IPN CECyT 7", layout="centered")
 
-# Encabezado centrado institucional
+# Encabezado centrado institucional en la web
 st.markdown(
     """
     <div style="text-align: center;">
@@ -53,7 +53,7 @@ if archivo_cargado is not None:
             hide_index=True,
         )
         
-        if st.button("🚀 Generar Código LaTeX (Formato Oficial)"):
+        if st.button("🚀 Generar Código LaTeX (Formato Oficial con Logos)"):
             seleccionadas = tabla_edicion[tabla_edicion['Seleccionar'] == True]
             
             if len(seleccionadas) == 0:
@@ -65,61 +65,73 @@ if archivo_cargado is not None:
                 teoricas = seleccionadas[seleccionadas['Tipo'] == 'opcion_multiple']
                 problemas = seleccionadas[seleccionadas['Tipo'] != 'opcion_multiple']
                 
-                # Construcción del examen plano para recuadro ERT
+                # Encabezado robusto compatible con ERT nativo de LyX
                 codigo_final = (
-                    "\\begin{center}\n"
-                    "    {\\Large \\textbf{INSTITUTO POLITÉCNICO NACIONAL}} \\\\\n"
-                    "    {\\large \\textbf{CENTRO DE ESTUDIOS CIENTÍFICOS Y TECNOLÓGICOS NÚM. 7 \"CUAUHTÉMOC\"}} \\\\\n"
-                    "    \\textbf{SUBDIRECCIÓN ACADÉMICA} \\\\\n"
-                    "    \\vspace{0.3cm}\n"
-                    f"    \\textbf{{UNIDAD DE APRENDIZAJE:}} {academia} \\quad \\textbf{{CICLO:}} {ciclo} \\\\\n"
-                    f"    \\textbf{{{evaluacion}}} \\quad \\textbf{{{tipo_examen}}}\n"
-                    "\\end{center}\n\n"
-                    "\\vspace{0.2cm}\n"
+                    "\\noindent\n"
+                    "\\begin{tabular}{@{}p{2.2cm}cp{2.2cm}@{}}\n"
+                    "   \\raisebox{-0.3\\totalheight}{\\includegraphics[width=2.0cm]{logo_ipn}} &\n"
+                    "   \\begin{center}\n"
+                    "       {\\large \\textbf{INSTITUTO POLITÉCNICO NACIONAL}} \\\\\n"
+                    "       {\\small \\textbf{CENTRO DE ESTUDIOS CIENTÍFICOS Y TECNOLÓGICOS NÚM. 7 \"CUAUHTÉMOC\"}} \\\\\n"
+                    "       \\textbf{\\footnotesize SUBDIRECCIÓN ACADÉMICA} \\\\\n"
+                    "       \\vspace{0.1cm}\n"
+                    f"       \\textbf{{\\footnotesize UNIDAD DE APRENDIZAJE:}} {{\\footnotesize {academia}}} \\quad \\textbf{{\\footnotesize CICLO:}} {{\\footnotesize {ciclo}}} \\\\\n"
+                    f"       \\textbf{{\\footnotesize {evaluacion}}} \\quad \\textbf{{\\footnotesize {tipo_examen}}}\n"
+                    "   \\end{center} &\n"
+                    "   \\raisebox{-0.3\\totalheight}{\\includegraphics[width=2.0cm]{logo_cecyt7}} \\\\\n"
+                    "\\end{tabular}\n\n"
+                    "\\vspace{0.1cm}\n"
                     "\\noindent\\textbf{Nombre del Alumno:} \\hrulefill \\, \\textbf{Boleta:} \\underline{\\hspace{2.5cm}} \\, \\textbf{Grupo:} \\underline{\\hspace{1.5cm}} \\\\\n"
                     f"\\noindent\\textbf{{Fecha:}} {fecha} \\quad \\textbf{{Horario:}} {horario} \\quad \\textbf{{Calificación:}} \\underline{{\\hspace{{1.5cm}}}}\n\n"
                     "\\vspace{0.3cm}\n"
                     "\\noindent\\rule{\\linewidth}{0.5mm}\n\n"
                     "\\vspace{0.2cm}\n"
                     "\\noindent \\textbf{SECCIÓN I: PREGUNTAS DE OPCIÓN MÚLTIPLE (TEORÍA)}\\\\\n"
-                    "\\vspace{0.2cm}\n"
+                    "\\vspace{0.4cm}\n"
                 )
                 
-                # Renderizar teóricas (Página 1) con opciones en una sola línea
+                # Renderizar teóricas (Página 1) con opciones alineadas horizontalmente usando \hfill
                 num = 1
                 for idx, row in teoricas.iterrows():
-                    codigo_final += f"\\noindent {num}.- {row['Enunciado']} \\\\\n"
-                    codigo_final += f"\\noindent a) {row['Opción A']} \\quad b) {row['Opción B']} \\quad c) {row['Opción C']} \\quad d) {row['Opción D']} \\\\\n"
-                    codigo_final += "\\vspace{0.4cm}\n"
+                    enunciado = str(row['Enunciado']).replace(f"{num}.-", "").strip()
+                    codigo_final += f"\\noindent \\textbf{{{num}.-}} {enunciado} \\\\\n"
+                    codigo_final += f"\\noindent a) {row['Opción A']} \\hfill b) {row['Opción B']} \\hfill c) {row['Opción C']} \\hfill d) {row['Opción D']} \\\\\n"
+                    codigo_final += "\\vspace{0.5cm}\n"
                     num += 1
                 
                 # Forzar salto a la Página 2 para los problemas numéricos
-                codigo_final += (
-                    "\\newpage\n"
-                    "\\noindent \\textbf{SECCIÓN II: PROBLEMAS NUMÉRICOS (DESARROLLO)}\\\\\n"
-                    "\\vspace{0.2cm}\n"
-                )
+                if len(problemas) > 0:
+                    codigo_final += (
+                        "\\newpage\n"
+                        "\\noindent \\textbf{SECCIÓN II: PROBLEMAS NUMÉRICOS (DESARROLLO)}\\\\\n"
+                        "\\vspace{0.4cm}\n"
+                    )
+                    
+                    for idx, row in problemas.iterrows():
+                        enunciado_prob = str(row['Enunciado']).strip()
+                        if enunciado_prob.startswith(f"{num}"):
+                            enunciado_prob = enunciado_prob.split(".-", 1)[-1].strip()
+                        codigo_final += f"\\noindent \\textbf{{{num}.-}} {enunciado_prob} \\\\\n"
+                        codigo_final += "\\vspace{3.5cm} % Espacio en blanco exacto para el desarrollo del alumno\n"
+                        num += 1
                 
-                for idx, row in problemas.iterrows():
-                    codigo_final += f"\\noindent {num}.- {row['Enunciado']} \\\\\n"
-                    codigo_final += "\\vspace{2.5cm} % Espacio libre para desarrollo numérico\n"
-                    num += 1
-                
-                # Bloque Oficial de Tres Firmas con nombres de la barra lateral
+                # Bloque Oficial de Tres Firmas perfectamente distribuidas
                 codigo_final += (
                     "\\vspace{\\fill}\n"
                     "\\begin{center}\n"
                     "\\small\n"
                     "\\begin{tabular}{ccc}\n"
                     "   \\rule{4.5cm}{0.2mm} & \\rule{4.5cm}{0.2mm} & \\rule{4.5cm}{0.2mm} \\\\\n"
-                    "   {prof_resp} & {presi_acad} & {jefe_dept} \\\\\n"
+                    f"   {prof_resp} & {presi_acad} & {jefe_dept} \\\\\n"
                     "   Profesor Responsable & Presidente de Academia & Jefe de Departamento \\\\\n"
                     "\\end{tabular}\n"
                     "\\end{center}\n"
                 )
                 
                 st.code(codigo_final, language="latex")
-                st.success("¡Código corregido con éxito estructural!")
+                st.success("¡Código LaTeX maestro optimizado para recuadro ERT!")
                 
     except Exception as e:
         st.error(f"Error al procesar: {e}")
+else:
+    st.info("Esperando el archivo de Excel para desplegar el banco de reactivos.")
