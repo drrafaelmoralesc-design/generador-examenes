@@ -27,17 +27,107 @@ fecha = st.sidebar.text_input("Fecha de Aplicación", value="Julio 2026")
 horario = st.sidebar.text_input("Horario", value="10:00 AM")
 tipo_examen = st.sidebar.selectbox("Tipo de Examen", ["Tipo A", "Tipo B"])
 
-# Mostrar simulación de los campos del alumno en la página principal
-st.markdown(
-    f"""
-    <div style="border: 1px solid #ccc; padding: 15px; border-radius: 5px; background-color: #f9f9f9; margin-bottom: 25px;">
-        <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-                <td style="width: 50%;"><b>Nombre del Alumno:</b> _____________________________________</td>
-                <td style="width: 25%;"><b>Boleta:</b> ______________</td>
-                <td style="width: 25%;"><b>Grupo:</b> _________</td>
-            </tr>
-            <tr>
-                <td><b>Unidad de Aprendizaje:</b> {academia}</td>
-                <td><b>Ciclo Escolar:</b> {ciclo}</td>
-                <td><b>
+# Mostrar simulación de los campos del alumno construyendo el HTML de forma segura
+html_alumno = (
+    '<div style="border: 1px solid #ccc; padding: 15px; border-radius: 5px; background-color: #f9f9f9; margin-bottom: 25px;">'
+    '<table style="width: 100%; border-collapse: collapse;">'
+    '<tr>'
+    '<td style="width: 50%;"><b>Nombre del Alumno:</b> _____________________________________</td>'
+    '<td style="width: 25%;"><b>Boleta:</b> ______________</td>'
+    '<td style="width: 25%;"><b>Grupo:</b> _________</td>'
+    '</tr>'
+    '<tr>'
+    f'<td><b>Unidad de Aprendizaje:</b> {academia}</td>'
+    f'<td><b>Ciclo Escolar:</b> {ciclo}</td>'
+    '<td><b>Calificación:</b> ______</td>'
+    '</tr>'
+    '<tr>'
+    f'<td colspan="3"><b>Tipo de Evaluación:</b> {evaluacion} &nbsp;&nbsp;&nbsp;&nbsp; <b>Fecha:</b> {fecha} &nbsp;&nbsp;&nbsp;&nbsp; <b>{tipo_examen}</b></td>'
+    '</tr>'
+    '</table>'
+    '</div>'
+)
+
+st.markdown(html_alumno, unsafe_allow_html=True)
+
+# Sección de Carga de Archivos
+st.header("📊 Carga de Reactivos")
+archivo_cargado = st.file_uploader("Suba el archivo de Excel con el banco de preguntas (.xlsx)", type=["xlsx"])
+
+if archivo_cargado is not None:
+    try:
+        df = pd.read_excel(archivo_cargado)
+        st.success("¡Archivo de reactivos cargado exitosamente!")
+        
+        st.subheader("📝 Selección de Reactivos para el Examen")
+        st.write("Seleccione las preguntas que desea incluir en la versión final:")
+        
+        df['Seleccionar'] = False
+        tabla_edicion = st.data_editor(
+            df,
+            column_config={
+                "Seleccionar": st.column_config.CheckboxColumn(
+                    "¿Incluir?",
+                    help="Marque la casilla para agregar esta pregunta",
+                    default=False,
+                )
+            },
+            disabled=["Tema", "Tipo", "Enunciado", "Opción A", "Opción B", "Opción C", "Opción D"],
+            hide_index=True,
+        )
+        
+        if st.button("🚀 Generar Código LaTeX (Formato Oficio Oficial)"):
+            preguntas_seleccionadas = tabla_edicion[tabla_edicion['Seleccionar'] == True]
+            
+            if len(preguntas_seleccionadas) == 0:
+                st.warning("Por favor, seleccione al menos una pregunta de la lista.")
+            else:
+                st.subheader("📄 Código LaTeX Listo para Copiar")
+                
+                codigo_previa = (
+                    "\\documentclass[11pt,legalpaper]{article}\n"
+                    "\\usepackage[utf8]{inputenc}\n"
+                    "\\usepackage[spanish]{babel}\n"
+                    "\\usepackage{geometry}\n"
+                    "\\geometry{letterpaper, margin=1.5cm}\n\n"
+                    "\\begin{document}\n\n"
+                    "\\begin{center}\n"
+                    "    {\\Large \\textbf{INSTITUTO POLITÉCNICO NACIONAL}} \\\\\n"
+                    "    {\\large \\textbf{CENTRO DE ESTUDIOS CIENTÍFICOS Y TECNOLÓGICOS NÚM. 7 \"CUAUHTÉMOC\"}} \\\\\n"
+                    "    \\textbf{SUBDIRECCIÓN ACADÉMICA} \\\\\n"
+                    "    \\vspace{0.3cm}\n"
+                    f"    \\textbf{{UNIDAD DE APRENDIZAJE:}} {academia} \\quad \\textbf{{CICLO:}} {ciclo} \\\\\n"
+                    f"    \\textbf{{{evaluacion}}} \\quad \\textbf{{{tipo_examen}}}\n"
+                    "\\end{center}\n\n"
+                    "\\vspace{0.2cm}\n"
+                    "\\noindent\\textbf{Nombre del Alumno:} \\hrulefill \\, \\textbf{Boleta:} \\underline{\\hspace{2.5cm}} \\, \\textbf{Grupo:} \\underline{\\hspace{1.5cm}} \\\\\n"
+                    f"\\noindent\\textbf{{Fecha:}} {fecha} \\quad \\textbf{{Horario:}} {horario} \\quad \\textbf{{Calificación:}} \\underline{{\\hspace{{1.5cm}}}}\n\n"
+                    "\\vspace{0.5cm}\n"
+                    "\\noindent\\rule{\\linewidth}{0.5mm}\n\n"
+                    "\\begin{enumerate}\n"
+                )
+                
+                for idx, row in preguntas_seleccionadas.iterrows():
+                    codigo_previa += f"\n    \\item {row['Enunciado']}"
+                    if row['Tipo'] == 'opcion_multiple':
+                        codigo_previa += f"\n    \\begin{{piletters}} \n        \\item {row['Opción A']} \n        \\item {row['Opción B']} \n        \\item {row['Opción C']} \n        \\item {row['Opción D']} \n    \\end{{piletters}}"
+                
+                codigo_previa += (
+                    "\n\\end{enumerate}\n\n"
+                    "\\vspace{1.5cm}\n"
+                    "\\begin{center}\n"
+                    "\\begin{tabular}{cc}\n"
+                    "   \\rule{5cm}{0.2mm} & \\rule{5cm}{0.2mm} \\\\\n"
+                    "   Presidente de Academia & Jefa de Departamento \\\\\n"
+                    "\\end{tabular}\n"
+                    "\\end{center}\n\n"
+                    "\\end{document}\n"
+                )
+                
+                st.code(codigo_previa, language="latex")
+                st.success("¡Código LaTeX estructurado con éxito! Ya incluye los bloques oficiales.")
+                
+    except Exception as e:
+        st.error(f"Hubo un problema al procesar el archivo de Excel: {e}")
+else:
+    st.info("Esperando el archivo de Excel para desplegar el banco de reactivos.")
