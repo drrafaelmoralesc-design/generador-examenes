@@ -33,6 +33,16 @@ prof_resp = st.sidebar.text_input("Profesor Responsable", value="Dr. Rafael")
 presi_acad = st.sidebar.text_input("Presidente de Academia", value="Ing. Nombre Presidente")
 jefe_dept = st.sidebar.text_input("Jefe de Departamento", value="M. en C. Nombre Jefe")
 
+# Función para limpiar texto y convertir caracteres como ² o ³ a modo matemático nativo
+def limpiar_texto_latex(texto):
+    if pd.isna(texto):
+        return ""
+    txt = str(texto)
+    # Reemplazar superíndices de texto por modo matemático compatible con LyX
+    txt = txt.replace("²", "$^2$")
+    txt = txt.replace("³", "$^3$")
+    return txt
+
 # Sección de Carga de Archivos
 st.header("📊 Carga de Reactivos")
 archivo_cargado = st.file_uploader("Suba el archivo de Excel (.xlsx)", type=["xlsx"])
@@ -65,7 +75,7 @@ if archivo_cargado is not None:
                 teoricas = seleccionadas[seleccionadas['Tipo'] == 'opcion_multiple']
                 problemas = seleccionadas[seleccionadas['Tipo'] != 'opcion_multiple']
                 
-                # Encabezado robusto compatible con ERT nativo de LyX
+                # Encabezado oficial para recuadro ERT de LyX
                 codigo_final = (
                     "\\noindent\n"
                     "\\begin{tabular}{@{}p{2.2cm}cp{2.2cm}@{}}\n"
@@ -90,16 +100,21 @@ if archivo_cargado is not None:
                     "\\vspace{0.4cm}\n"
                 )
                 
-                # Renderizar teóricas (Página 1) con opciones alineadas horizontalmente usando \hfill
+                # Renderizar teóricas aplicando la limpieza de caracteres
                 num = 1
                 for idx, row in teoricas.iterrows():
-                    enunciado = str(row['Enunciado']).replace(f"{num}.-", "").strip()
+                    enunciado = limpiar_texto_latex(row['Enunciado']).replace(f"{num}.-", "").strip()
+                    op_a = limpiar_texto_latex(row['Opción A'])
+                    op_b = limpiar_texto_latex(row['Opción B'])
+                    op_c = limpiar_texto_latex(row['Opción C'])
+                    op_d = limpiar_texto_latex(row['Opción D'])
+                    
                     codigo_final += f"\\noindent \\textbf{{{num}.-}} {enunciado} \\\\\n"
-                    codigo_final += f"\\noindent a) {row['Opción A']} \\hfill b) {row['Opción B']} \\hfill c) {row['Opción C']} \\hfill d) {row['Opción D']} \\\\\n"
+                    codigo_final += f"\\noindent a) {op_a} \\hfill b) {op_b} \\hfill c) {op_c} \\hfill d) {op_d} \\\\\n"
                     codigo_final += "\\vspace{0.5cm}\n"
                     num += 1
                 
-                # Forzar salto a la Página 2 para los problemas numéricos
+                # Forzar salto a la Página 2 para los problemas numéricos limpiando caracteres
                 if len(problemas) > 0:
                     codigo_final += (
                         "\\newpage\n"
@@ -108,11 +123,11 @@ if archivo_cargado is not None:
                     )
                     
                     for idx, row in problemas.iterrows():
-                        enunciado_prob = str(row['Enunciado']).strip()
+                        enunciado_prob = limpiar_texto_latex(row['Enunciado']).strip()
                         if enunciado_prob.startswith(f"{num}"):
                             enunciado_prob = enunciado_prob.split(".-", 1)[-1].strip()
                         codigo_final += f"\\noindent \\textbf{{{num}.-}} {enunciado_prob} \\\\\n"
-                        codigo_final += "\\vspace{3.5cm} % Espacio en blanco exacto para el desarrollo del alumno\n"
+                        codigo_final += "\\vspace{3.5cm} % Espacio en blanco para desarrollo\n"
                         num += 1
                 
                 # Bloque Oficial de Tres Firmas perfectamente distribuidas
@@ -129,7 +144,7 @@ if archivo_cargado is not None:
                 )
                 
                 st.code(codigo_final, language="latex")
-                st.success("¡Código LaTeX maestro optimizado para recuadro ERT!")
+                st.success("¡Código LaTeX maestro optimizado y libre de errores de caracteres!")
                 
     except Exception as e:
         st.error(f"Error al procesar: {e}")
