@@ -84,12 +84,14 @@ if archivo_cargado is not None:
             else:
                 st.subheader("📄 Código LaTeX Listo para Copiar")
                 
+                # Formato ultra compatible para importación directa en LyX
                 codigo_previa = (
-                    "\\documentclass[11pt,legalpaper]{article}\n"
+                    "\\documentclass[11pt,spanish]{article}\n"
                     "\\usepackage[utf8]{inputenc}\n"
-                    "\\usepackage[spanish]{babel}\n"
-                    "\\usepackage{geometry}\n"
-                    "\\geometry{letterpaper, margin=1.5cm}\n\n"
+                    "\\usepackage{babel}\n"
+                    "\\usepackage[letterpaper,margin=1.5cm]{geometry}\n"
+                    "\\usepackage{shortlst}\n"
+                    "\\usepackage{enumitem}\n\n"
                     "\\begin{document}\n\n"
                     "\\begin{center}\n"
                     "    {\\Large \\textbf{INSTITUTO POLITÉCNICO NACIONAL}} \\\\\n"
@@ -104,13 +106,21 @@ if archivo_cargado is not None:
                     f"\\noindent\\textbf{{Fecha:}} {fecha} \\quad \\textbf{{Horario:}} {horario} \\quad \\textbf{{Calificación:}} \\underline{{\\hspace{{1.5cm}}}}\n\n"
                     "\\vspace{0.5cm}\n"
                     "\\noindent\\rule{\\linewidth}{0.5mm}\n\n"
-                    "\\begin{enumerate}\n"
+                    "\\begin{enumerate}[label=\\arabic*.-]\n"
                 )
                 
                 for idx, row in preguntas_seleccionadas.iterrows():
                     codigo_previa += f"\n    \\item {row['Enunciado']}"
                     if row['Tipo'] == 'opcion_multiple':
-                        codigo_previa += f"\n    \\begin{{piletters}} \n        \\item {row['Opción A']} \n        \\item {row['Opción B']} \n        \\item {row['Opción C']} \n        \\item {row['Opción D']} \n    \\end{{piletters}}"
+                        # Se cambia piletters por un entorno estándar de letras (a, b, c, d)
+                        codigo_previa += (
+                            f"\n    \\begin{{enumerate}}[label=\\alph*)] \n"
+                            f"        \\item {row['Opción A']} \n"
+                            f"        \\item {row['Opción B']} \n"
+                            f"        \\item {row['Opción C']} \n"
+                            f"        \\item {row['Opción D']} \n"
+                            f"    \\end{{enumerate}}"
+                        )
                 
                 codigo_previa += (
                     "\n\\end{enumerate}\n\n"
@@ -125,7 +135,7 @@ if archivo_cargado is not None:
                 )
                 
                 st.code(codigo_previa, language="latex")
-                st.success("¡Código LaTeX estructurado con éxito! Ya incluye los bloques oficiales.")
+                st.success("¡Código LaTeX estructurado con éxito nativo! Listo para importar en LyX.")
                 
     except Exception as e:
         st.error(f"Hubo un problema al procesar el archivo de Excel: {e}")
