@@ -6,18 +6,19 @@ archivo_cargado = st.file_uploader("Suba su archivo Excel", type=["xlsx"])
 if archivo_cargado and st.button("🚀 Generar Código LaTeX"):
     df = pd.read_excel(archivo_cargado)
     
-    # Limpieza extrema: elimina el carácter 0xB2 y cualquier otro símbolo extraño
-    def limpiar_final(texto):
+    # Limpieza extrema sin usar funciones obsoletas
+    def limpiar_texto(texto):
         texto = str(texto).replace("²", " al cuadrado").replace("³", " al cubo")
         return "".join(c for c in texto if c.isprintable())
 
-    # Aplicar limpieza a todo el DataFrame
-    df = df.applymap(limpiar_final)
+    # Aplicamos la limpieza columna por columna para evitar el error de applymap
+    for col in df.columns:
+        df[col] = df[col].apply(limpiar_texto)
     
     teoricas = df[df['Tipo'] == 'opcion_multiple']
     problemas = df[df['Tipo'] != 'opcion_multiple']
     
-    # Generar código ultra-plano (sin comandos LaTeX complejos)
+    # Generar código ultra-plano
     codigo = "\\noindent \\textbf{INSTITUTO POLITÉCNICO NACIONAL} \\\\\n"
     codigo += "\\noindent \\textbf{CECyT Núm. 7 \"CUAUHTÉMOC\"} \\\\\n"
     codigo += "\\noindent \\textbf{ACADEMIA DE FÍSICA II} \\\\\n\n"
