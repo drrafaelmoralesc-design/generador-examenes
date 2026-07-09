@@ -1,24 +1,29 @@
 import streamlit as st
 import pandas as pd
+import re
 
 archivo_cargado = st.file_uploader("Suba su archivo Excel", type=["xlsx"])
 
 if archivo_cargado and st.button("🚀 Generar Código LaTeX"):
     df = pd.read_excel(archivo_cargado)
     
-    # Limpieza extrema sin usar funciones obsoletas
-    def limpiar_texto(texto):
-        texto = str(texto).replace("²", " al cuadrado").replace("³", " al cubo")
-        return "".join(c for c in texto if c.isprintable())
+    # Limpieza nivel experto: borra CUALQUIER cosa que no sea letra, número o puntuación básica
+    def limpieza_extrema(texto):
+        texto = str(texto)
+        # Reemplazar símbolos matemáticos comunes por texto plano seguro
+        texto = texto.replace("²", " al cuadrado").replace("³", " al cubo").replace("°", " grados")
+        # Eliminar cualquier carácter que no sea ASCII (letras normales, números, puntuación básica)
+        texto = re.sub(r'[^\x00-\x7F]+', '', texto)
+        return texto
 
-    # Aplicamos la limpieza columna por columna para evitar el error de applymap
+    # Aplicar la limpieza columna por columna
     for col in df.columns:
-        df[col] = df[col].apply(limpiar_texto)
+        df[col] = df[col].apply(limpieza_extrema)
     
     teoricas = df[df['Tipo'] == 'opcion_multiple']
     problemas = df[df['Tipo'] != 'opcion_multiple']
     
-    # Generar código ultra-plano
+    # Generar código sin NINGUN comando especial (solo texto plano)
     codigo = "\\noindent \\textbf{INSTITUTO POLITÉCNICO NACIONAL} \\\\\n"
     codigo += "\\noindent \\textbf{CECyT Núm. 7 \"CUAUHTÉMOC\"} \\\\\n"
     codigo += "\\noindent \\textbf{ACADEMIA DE FÍSICA II} \\\\\n\n"
@@ -35,6 +40,6 @@ if archivo_cargado and st.button("🚀 Generar Código LaTeX"):
         codigo += "\\noindent " + str(row['Enunciado']) + " \\\\\n\\vspace{3cm}\n"
     
     codigo += "\\vspace{\\fill}\n"
-    codigo += "\\noindent \\textit{Nota: La revisión de exámenes se realizará en la fecha indicada.}\n"
+    codigo += "\\noindent \\textit{Nota: La revision de examenes se realizara en la fecha indicada.}\n"
     
     st.code(codigo, language="latex")
