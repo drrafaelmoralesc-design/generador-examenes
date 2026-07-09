@@ -14,7 +14,7 @@ if archivo_cargado and st.button("🚀 Generar Código LaTeX Final"):
     teoricas = df[df['Tipo'] == 'opcion_multiple']
     problemas = df[df['Tipo'] != 'opcion_multiple']
     
-    # ESTRUCTURA MAESTRA DE LaTeX (Sin errores de sintaxis)
+    # ESTRUCTURA MAESTRA SIN LETRAS F (A prueba de errores)
     codigo_final = "% --- ENCABEZADO ---\n"
     codigo_final += "\\begin{center}\n"
     codigo_final += "\\textbf{INSTITUTO POLITÉCNICO NACIONAL} \\\\\n"
@@ -26,13 +26,14 @@ if archivo_cargado and st.button("🚀 Generar Código LaTeX Final"):
     codigo_final += "\\noindent \\textbf{SECCIÓN I: TEORÍA}\n\n"
     
     for _, row in teoricas.iterrows():
-        codigo_final += f"\\noindent {row['Enunciado']} \\\\\n"
-        codigo_final += f"a) {row['Opción A']} \\hfill b) {row['Opción B']} \\hfill c) {row['Opción C']} \\hfill d) {row['Opción D']} \\\\\n\\vspace{0.3cm}\n"
+        # Concatenación simple usando comas y el signo + para evitar cualquier error de sintaxis
+        codigo_final += "\\noindent " + str(row['Enunciado']) + " \\\\\n"
+        codigo_final += "a) " + str(row['Opción A']) + " \\hfill b) " + str(row['Opción B']) + " \\hfill c) " + str(row['Opción C']) + " \\hfill d) " + str(row['Opción D']) + " \\\\\n\\vspace{0.3cm}\n"
     
     codigo_final += "\\vspace{\\fill}\n"
     codigo_final += "% --- FIRMAS PÁGINA 1 ---\n"
     codigo_final += "\\noindent \\begin{tabular}{p{5cm}p{5cm}p{5cm}}\n"
-    codigo_final += f"{prof_resp} & {presi_acad} & {jefe_dept} \\\\\n"
+    codigo_final += prof_resp + " & " + presi_acad + " & " + jefe_dept + " \\\\\n"
     codigo_final += "Profesor Responsable & Presidente de Academia & Jefe de Departamento \\\\\n"
     codigo_final += "\\end{tabular}\n\n"
     codigo_final += "\\newpage\n"
@@ -40,7 +41,7 @@ if archivo_cargado and st.button("🚀 Generar Código LaTeX Final"):
     codigo_final += "\\noindent \\textbf{SECCIÓN II: PROBLEMAS}\n\n"
     
     for _, row in problemas.iterrows():
-        codigo_final += f"\\noindent {row['Enunciado']} \\\\\n\\vspace{3cm}\n"
+        codigo_final += "\\noindent " + str(row['Enunciado']) + " \\\\\n\\vspace{3cm}\n"
         
     codigo_final += "\\vspace{\\fill}\n"
     codigo_final += "\\noindent \\textit{Nota: La revisión de exámenes se realizará en la fecha y hora indicadas por la academia.}\n"
