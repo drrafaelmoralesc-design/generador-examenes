@@ -1,41 +1,39 @@
 import streamlit as st
 import pandas as pd
 
-st.sidebar.header("⚙️ Datos del Examen")
-prof_resp = st.sidebar.text_input("Profesor Responsable", value="Dr. Rafael")
-presi_acad = st.sidebar.text_input("Presidente de Academia", value="Ing. Nombre Presidente")
-jefe_dept = st.sidebar.text_input("Jefe de Departamento", value="M. en C. Nombre Jefe")
-
 archivo_cargado = st.file_uploader("Suba su archivo Excel", type=["xlsx"])
 
 if archivo_cargado and st.button("🚀 Generar Código LaTeX"):
     df = pd.read_excel(archivo_cargado)
+    
+    # Limpieza extrema: elimina el carácter 0xB2 y cualquier otro símbolo extraño
+    def limpiar_final(texto):
+        texto = str(texto).replace("²", " al cuadrado").replace("³", " al cubo")
+        return "".join(c for c in texto if c.isprintable())
+
+    # Aplicar limpieza a todo el DataFrame
+    df = df.applymap(limpiar_final)
+    
     teoricas = df[df['Tipo'] == 'opcion_multiple']
     problemas = df[df['Tipo'] != 'opcion_multiple']
     
-    # ESTRUCTURA BLINDADA: Todo se trata como texto puro para evitar errores de secuencia
-    codigo_final = "\\begin{center}\n\\textbf{INSTITUTO POLITÉCNICO NACIONAL} \\\\\n"
-    codigo_final += "\\textbf{CECyT Núm. 7 \"CUAUHTÉMOC\"} \\\\\n"
-    codigo_final += "\\textbf{ACADEMIA DE FÍSICA II} \\\\\n\\end{center}\n"
-    codigo_final += "\\noindent Nombre: \\hrulefill \\quad Boleta: \\underline{\\hspace{2cm}} \\quad Grupo: \\underline{\\hspace{1.5cm}}\n\n"
-    codigo_final += "\\vspace{0.3cm}\n\\noindent \\textbf{SECCIÓN I: TEORÍA}\n\n"
+    # Generar código ultra-plano (sin comandos LaTeX complejos)
+    codigo = "\\noindent \\textbf{INSTITUTO POLITÉCNICO NACIONAL} \\\\\n"
+    codigo += "\\noindent \\textbf{CECyT Núm. 7 \"CUAUHTÉMOC\"} \\\\\n"
+    codigo += "\\noindent \\textbf{ACADEMIA DE FÍSICA II} \\\\\n\n"
+    codigo += "\\noindent Nombre: \\underline{\\hspace{6cm}} Boleta: \\underline{\\hspace{3cm}} Grupo: \\underline{\\hspace{2cm}}\n\n"
+    codigo += "\\rule{\\linewidth}{0.5mm}\n\n"
     
+    codigo += "\\noindent \\textbf{SECCIÓN I: TEORÍA}\n\n"
     for _, row in teoricas.iterrows():
-        # Usamos \text{} para que LaTeX no intente leer los caracteres raros como comandos
-        codigo_final += "\\noindent \\text{" + str(row['Enunciado']) + "} \\\\\n"
-        codigo_final += "a) \\text{" + str(row['Opción A']) + "} \\hfill b) \\text{" + str(row['Opción B']) + "} \\hfill c) \\text{" + str(row['Opción C']) + "} \\hfill d) \\text{" + str(row['Opción D']) + "} \\\\\n\\vspace{0.3cm}\n"
+        codigo += "\\noindent " + str(row['Enunciado']) + " \\\\\n"
+        codigo += "a) " + str(row['Opción A']) + " b) " + str(row['Opción B']) + " c) " + str(row['Opción C']) + " d) " + str(row['Opción D']) + " \\\\\n\\vspace{0.2cm}\n"
     
-    codigo_final += "\\vspace{\\fill}\n"
-    codigo_final += "\\noindent \\begin{tabular}{p{5cm}p{5cm}p{5cm}}\n"
-    codigo_final += prof_resp + " & " + presi_acad + " & " + jefe_dept + " \\\\\n"
-    codigo_final += "Profesor Responsable & Presidente de Academia & Jefe de Departamento \\\\\n"
-    codigo_final += "\\end{tabular}\n\n\\newpage\n"
-    codigo_final += "\\noindent \\textbf{SECCIÓN II: PROBLEMAS}\n\n"
-    
+    codigo += "\\newpage\n\\noindent \\textbf{SECCIÓN II: PROBLEMAS}\n\n"
     for _, row in problemas.iterrows():
-        codigo_final += "\\noindent \\text{" + str(row['Enunciado']) + "} \\\\\n\\vspace{3cm}\n"
-        
-    codigo_final += "\\vspace{\\fill}\n"
-    codigo_final += "\\noindent \\textit{Nota: La revisión de exámenes se realizará en la fecha y hora indicadas por la academia.}\n"
+        codigo += "\\noindent " + str(row['Enunciado']) + " \\\\\n\\vspace{3cm}\n"
     
-    st.code(codigo_final, language="latex")
+    codigo += "\\vspace{\\fill}\n"
+    codigo += "\\noindent \\textit{Nota: La revisión de exámenes se realizará en la fecha indicada.}\n"
+    
+    st.code(codigo, language="latex")
