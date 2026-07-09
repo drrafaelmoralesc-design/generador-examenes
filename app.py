@@ -33,12 +33,12 @@ prof_resp = st.sidebar.text_input("Profesor Responsable", value="Dr. Rafael")
 presi_acad = st.sidebar.text_input("Presidente de Academia", value="Ing. Nombre Presidente")
 jefe_dept = st.sidebar.text_input("Jefe de Departamento", value="M. en C. Nombre Jefe")
 
-# Función para limpiar texto y convertir caracteres como ² o ³ a modo matemático nativo
+# Función para limpiar texto y blindar caracteres matemáticos/físicos
 def limpiar_texto_latex(texto):
     if pd.isna(texto):
         return ""
     txt = str(texto)
-    # Reemplazar superíndices de texto por modo matemático compatible con LyX
+    # Proteger símbolos de potencias comunes en física
     txt = txt.replace("²", "$^2$")
     txt = txt.replace("³", "$^3$")
     return txt
@@ -63,7 +63,7 @@ if archivo_cargado is not None:
             hide_index=True,
         )
         
-        if st.button("🚀 Generar Código LaTeX (Formato Oficial con Logos)"):
+        if st.button("🚀 Generar Código LaTeX (Formato Oficial Certificado)"):
             seleccionadas = tabla_edicion[tabla_edicion['Seleccionar'] == True]
             
             if len(seleccionadas) == 0:
@@ -75,22 +75,20 @@ if archivo_cargado is not None:
                 teoricas = seleccionadas[seleccionadas['Tipo'] == 'opcion_multiple']
                 problemas = seleccionadas[seleccionadas['Tipo'] != 'opcion_multiple']
                 
-                # Encabezado oficial para recuadro ERT de LyX
+                # Encabezado robusto ultra-compatible con ERT (Sin tabular ni raisebox)
                 codigo_final = (
                     "\\noindent\n"
-                    "\\begin{tabular}{@{}p{2.2cm}cp{2.2cm}@{}}\n"
-                    "   \\raisebox{-0.3\\totalheight}{\\includegraphics[width=2.0cm]{logo_ipn}} &\n"
-                    "   \\begin{center}\n"
-                    "       {\\large \\textbf{INSTITUTO POLITÉCNICO NACIONAL}} \\\\\n"
-                    "       {\\small \\textbf{CENTRO DE ESTUDIOS CIENTÍFICOS Y TECNOLÓGICOS NÚM. 7 \"CUAUHTÉMOC\"}} \\\\\n"
-                    "       \\textbf{\\footnotesize SUBDIRECCIÓN ACADÉMICA} \\\\\n"
-                    "       \\vspace{0.1cm}\n"
-                    f"       \\textbf{{\\footnotesize UNIDAD DE APRENDIZAJE:}} {{\\footnotesize {academia}}} \\quad \\textbf{{\\footnotesize CICLO:}} {{\\footnotesize {ciclo}}} \\\\\n"
-                    f"       \\textbf{{\\footnotesize {evaluacion}}} \\quad \\textbf{{\\footnotesize {tipo_examen}}}\n"
-                    "   \\end{center} &\n"
-                    "   \\raisebox{-0.3\\totalheight}{\\includegraphics[width=2.0cm]{logo_cecyt7}} \\\\\n"
-                    "\\end{tabular}\n\n"
-                    "\\vspace{0.1cm}\n"
+                    "\\parbox[c]{2.2cm}{\\includegraphics[width=2.0cm]{logo_ipn}}\\hfill\n"
+                    "\\parbox[c]{12.5cm}{\\begin{center}\n"
+                    "    {\\large \\textbf{INSTITUTO POLITÉCNICO NACIONAL}} \\\\\n"
+                    "    {\\small \\textbf{CENTRO DE ESTUDIOS CIENTÍFICOS Y TECNOLÓGICOS NÚM. 7 \"CUAUHTÉMOC\"}} \\\\\n"
+                    "    \\textbf{\\footnotesize SUBDIRECCIÓN ACADÉMICA} \\\\\n"
+                    "    \\vspace{0.1cm}\n"
+                    f"    \\textbf{{\\footnotesize UNIDAD DE APRENDIZAJE:}} {{\\footnotesize {academia}}} \\quad \\textbf{{\\footnotesize CICLO:}} {{\\footnotesize {ciclo}}} \\\\\n"
+                    f"    \\textbf{{\\footnotesize {evaluacion}}} \\quad \\textbf{{\\footnotesize {tipo_examen}}}\n"
+                    "\\end{center}}\\hfill\n"
+                    "\\parbox[c]{2.2cm}{\\hfill\\includegraphics[width=2.0cm]{logo_cecyt7}}\n\n"
+                    "\\vspace{0.3cm}\n"
                     "\\noindent\\textbf{Nombre del Alumno:} \\hrulefill \\, \\textbf{Boleta:} \\underline{\\hspace{2.5cm}} \\, \\textbf{Grupo:} \\underline{\\hspace{1.5cm}} \\\\\n"
                     f"\\noindent\\textbf{{Fecha:}} {fecha} \\quad \\textbf{{Horario:}} {horario} \\quad \\textbf{{Calificación:}} \\underline{{\\hspace{{1.5cm}}}}\n\n"
                     "\\vspace{0.3cm}\n"
@@ -114,7 +112,7 @@ if archivo_cargado is not None:
                     codigo_final += "\\vspace{0.5cm}\n"
                     num += 1
                 
-                # Forzar salto a la Página 2 para los problemas numéricos limpiando caracteres
+                # Forzar salto a la Página 2 para los problemas numéricos
                 if len(problemas) > 0:
                     codigo_final += (
                         "\\newpage\n"
@@ -127,7 +125,7 @@ if archivo_cargado is not None:
                         if enunciado_prob.startswith(f"{num}"):
                             enunciado_prob = enunciado_prob.split(".-", 1)[-1].strip()
                         codigo_final += f"\\noindent \\textbf{{{num}.-}} {enunciado_prob} \\\\\n"
-                        codigo_final += "\\vspace{3.5cm} % Espacio en blanco para desarrollo\n"
+                        codigo_final += "\\vspace{3.5cm} % Espacio libre para desarrollo\n"
                         num += 1
                 
                 # Bloque Oficial de Tres Firmas perfectamente distribuidas
@@ -144,7 +142,7 @@ if archivo_cargado is not None:
                 )
                 
                 st.code(codigo_final, language="latex")
-                st.success("¡Código LaTeX maestro optimizado y libre de errores de caracteres!")
+                st.success("¡Código LaTeX maestro optimizado y libre de errores de modo!")
                 
     except Exception as e:
         st.error(f"Error al procesar: {e}")
