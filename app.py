@@ -4,7 +4,7 @@ import pandas as pd
 # Configuración de la página en modo centrado
 st.set_page_config(page_title="Generador de Exámenes - IPN CECyT 7", layout="centered")
 
-# Encabezado centrado con HTML
+# Encabezado centrado institucional
 st.markdown(
     """
     <div style="text-align: center;">
@@ -18,7 +18,7 @@ st.markdown(
 
 st.markdown("---")
 
-# Panel de Configuración de Datos del Examen (Barra Lateral Izquierda)
+# Panel de Configuración de Datos del Examen
 st.sidebar.header("⚙️ Datos del Encabezado")
 ciclo = st.sidebar.text_input("Ciclo Escolar", value="2026-2")
 evaluacion = st.sidebar.text_input("Evaluación", value="Evaluación por ETS (Extraordinario)")
@@ -27,70 +27,46 @@ fecha = st.sidebar.text_input("Fecha de Aplicación", value="Julio 2026")
 horario = st.sidebar.text_input("Horario", value="10:00 AM")
 tipo_examen = st.sidebar.selectbox("Tipo de Examen", ["Tipo A", "Tipo B"])
 
-# Mostrar simulación de los campos del alumno construyendo el HTML de forma segura
-html_alumno = (
-    '<div style="border: 1px solid #ccc; padding: 15px; border-radius: 5px; background-color: #f9f9f9; margin-bottom: 25px;">'
-    '<table style="width: 100%; border-collapse: collapse;">'
-    '<tr>'
-    '<td style="width: 50%;"><b>Nombre del Alumno:</b> _____________________________________</td>'
-    '<td style="width: 25%;"><b>Boleta:</b> ______________</td>'
-    '<td style="width: 25%;"><b>Grupo:</b> _________</td>'
-    '</tr>'
-    '<tr>'
-    f'<td><b>Unidad de Aprendizaje:</b> {academia}</td>'
-    f'<td><b>Ciclo Escolar:</b> {ciclo}</td>'
-    '<td><b>Calificación:</b> ______</td>'
-    '</tr>'
-    '<tr>'
-    f'<td colspan="3"><b>Tipo de Evaluación:</b> {evaluacion} &nbsp;&nbsp;&nbsp;&nbsp; <b>Fecha:</b> {fecha} &nbsp;&nbsp;&nbsp;&nbsp; <b>{tipo_examen}</b></td>'
-    '</tr>'
-    '</table>'
-    '</div>'
-)
-
-st.markdown(html_alumno, unsafe_allow_html=True)
+# Datos de Firmas Personalizables
+st.sidebar.header("✍️ Firmas del Examen")
+prof_resp = st.sidebar.text_input("Profesor Responsable", value="Dr. Rafael")
+presi_acad = st.sidebar.text_input("Presidente de Academia", value="Ing. Nombre Presidente")
+jefe_dept = st.sidebar.text_input("Jefe de Departamento", value="M. en C. Nombre Jefe")
 
 # Sección de Carga de Archivos
 st.header("📊 Carga de Reactivos")
-archivo_cargado = st.file_uploader("Suba el archivo de Excel con el banco de preguntas (.xlsx)", type=["xlsx"])
+archivo_cargado = st.file_uploader("Suba el archivo de Excel (.xlsx)", type=["xlsx"])
 
 if archivo_cargado is not None:
     try:
         df = pd.read_excel(archivo_cargado)
         st.success("¡Archivo de reactivos cargado exitosamente!")
         
-        st.subheader("📝 Selección de Reactivos para el Examen")
-        st.write("Seleccione las preguntas que desea incluir en la versión final:")
-        
+        st.subheader("📝 Selección de Reactivos")
         df['Seleccionar'] = False
         tabla_edicion = st.data_editor(
             df,
             column_config={
-                "Seleccionar": st.column_config.CheckboxColumn(
-                    "¿Incluir?",
-                    help="Marque la casilla para agregar esta pregunta",
-                    default=False,
-                )
+                "Seleccionar": st.column_config.CheckboxColumn("¿Incluir?", default=False)
             },
             disabled=["Tema", "Tipo", "Enunciado", "Opción A", "Opción B", "Opción C", "Opción D"],
             hide_index=True,
         )
         
-        if st.button("🚀 Generar Código LaTeX (Formato Oficio Oficial)"):
-            preguntas_seleccionadas = tabla_edicion[tabla_edicion['Seleccionar'] == True]
+        if st.button("🚀 Generar Código LaTeX (Formato Oficial)"):
+            seleccionadas = tabla_edicion[tabla_edicion['Seleccionar'] == True]
             
-            if len(preguntas_seleccionadas) == 0:
-                st.warning("Por favor, seleccione al menos una pregunta de la lista.")
+            if len(seleccionadas) == 0:
+                st.warning("Por favor, seleccione reactivos.")
             else:
-                st.subheader("📄 Código LaTeX Listo para Copiar")
+                st.subheader("📄 Código LaTeX Listo para LyX")
                 
-                # Código 100% nativo y ultra compatible
-                codigo_previa = (
-                    "\\documentclass[11pt,spanish]{article}\n"
-                    "\\usepackage[utf8]{inputenc}\n"
-                    "\\usepackage{babel}\n"
-                    "\\usepackage[letterpaper,margin=1.5cm]{geometry}\n\n"
-                    "\\begin{document}\n\n"
+                # Separar los reactivos por tipo
+                teoricas = seleccionadas[seleccionadas['Tipo'] == 'opcion_multiple']
+                problemas = seleccionadas[seleccionadas['Tipo'] != 'opcion_multiple']
+                
+                # Construcción del examen plano para recuadro ERT
+                codigo_final = (
                     "\\begin{center}\n"
                     "    {\\Large \\textbf{INSTITUTO POLITÉCNICO NACIONAL}} \\\\\n"
                     "    {\\large \\textbf{CENTRO DE ESTUDIOS CIENTÍFICOS Y TECNOLÓGICOS NÚM. 7 \"CUAUHTÉMOC\"}} \\\\\n"
@@ -102,40 +78,48 @@ if archivo_cargado is not None:
                     "\\vspace{0.2cm}\n"
                     "\\noindent\\textbf{Nombre del Alumno:} \\hrulefill \\, \\textbf{Boleta:} \\underline{\\hspace{2.5cm}} \\, \\textbf{Grupo:} \\underline{\\hspace{1.5cm}} \\\\\n"
                     f"\\noindent\\textbf{{Fecha:}} {fecha} \\quad \\textbf{{Horario:}} {horario} \\quad \\textbf{{Calificación:}} \\underline{{\\hspace{{1.5cm}}}}\n\n"
-                    "\\vspace{0.5cm}\n"
+                    "\\vspace{0.3cm}\n"
                     "\\noindent\\rule{\\linewidth}{0.5mm}\n\n"
-                    "\\begin{enumerate}\n"
+                    "\\vspace{0.2cm}\n"
+                    "\\noindent \\textbf{SECCIÓN I: PREGUNTAS DE OPCIÓN MÚLTIPLE (TEORÍA)}\\\\\n"
+                    "\\vspace{0.2cm}\n"
                 )
                 
-                for idx, row in preguntas_seleccionadas.iterrows():
-                    codigo_previa += f"\n    \\item {row['Enunciado']}"
-                    if row['Tipo'] == 'opcion_multiple':
-                        # Usamos el entorno nativo sin requerir paquetes externos
-                        codigo_previa += (
-                            f"\n    \\begin{{enumerate}}\n"
-                            f"        \\item {row['Opción A']} \n"
-                            f"        \\item {row['Opción B']} \n"
-                            f"        \\item {row['Opción C']} \n"
-                            f"        \\item {row['Opción D']} \n"
-                            f"    \\end{{enumerate}}"
-                        )
+                # Renderizar teóricas (Página 1) con opciones en una sola línea
+                num = 1
+                for idx, row in teoricas.iterrows():
+                    codigo_final += f"\\noindent {num}.- {row['Enunciado']} \\\\\n"
+                    codigo_final += f"\\noindent a) {row['Opción A']} \\quad b) {row['Opción B']} \\quad c) {row['Opción C']} \\quad d) {row['Opción D']} \\\\\n"
+                    codigo_final += "\\vspace{0.4cm}\n"
+                    num += 1
                 
-                codigo_previa += (
-                    "\n\\end{enumerate}\n\n"
-                    "\\vspace{1.5cm}\n"
+                # Forzar salto a la Página 2 para los problemas numéricos
+                codigo_final += (
+                    "\\newpage\n"
+                    "\\noindent \\textbf{SECCIÓN II: PROBLEMAS NUMÉRICOS (DESARROLLO)}\\\\\n"
+                    "\\vspace{0.2cm}\n"
+                )
+                
+                for idx, row in problemas.iterrows():
+                    codigo_final += f"\\noindent {num}.- {row['Enunciado']} \\\\\n"
+                    codigo_final += "\\vspace{2.5cm} % Espacio libre para desarrollo numérico\n"
+                    num += 1
+                
+                # Bloque Oficial de Tres Firmas con nombres de la barra lateral
+                codigo_final += (
+                    "\\vspace{\\fill}\n"
                     "\\begin{center}\n"
-                    "\\begin{tabular}{cc}\n"
-                    "   \\rule{5cm}{0.2mm} & \\rule{5cm}{0.2mm} \\\\\n"
-                    "   Presidente de Academia & Jefa de Departamento \\\\\n"
+                    "\\small\n"
+                    "\\begin{tabular}{ccc}\n"
+                    f"   \\rule{4.5cm}{0.2mm} & \\rule{4.5cm}{0.2mm} & \\rule{4.5cm}{0.2mm} \\\\\n"
+                    f"   {prof_resp} & {presi_acad} & {jefe_dept} \\\\\n"
+                    "   Profesor Responsable & Presidente de Academia & Jefe de Departamento \\\\\n"
                     "\\end{tabular}\n"
-                    "\\end{center}\n\n"
-                    "\\end{document}\n"
+                    "\\end{center}\n"
                 )
                 
-                st.code(codigo_previa, language="latex")
-                st.success("¡Código LaTeX purificado! Listo para compilar en cualquier versión de LyX.")
+                st.code(codigo_final, language="latex")
+                st.success("¡Código corregido con éxito estructural!")
                 
     except Exception as e:
-        st.error(f"Hubo un problema al procesar el archivo de Excel: {e}")
-else:
-    st.info("Esperando el archivo de Excel para desplegar el banco de reactivos.")
+        st.error(f"Error al procesar: {e}")
